@@ -50,10 +50,17 @@ client.on("messageCreate", async (message) => {
       }
     }
 
-    message.channel.send(
-      `✅ Gönderildi: ${sent}\n❌ Gönderilemedi: ${failed}`
-    );
-  }
+ message.channel.send({
+  embeds: [{
+    title: "📊 DM Raporu",
+    color: 0x00ff00,
+    fields: [
+      { name: "✅ Başarılı", value: `${sent}`, inline: true },
+      { name: "❌ Başarısız", value: `${failed}`, inline: true },
+      { name: "👥 Toplam Denenen", value: `${sent + failed}`, inline: true }
+    ],
+    timestamp: new Date()
+  }]
 });
 
 client.login(process.env.TOKEN);
