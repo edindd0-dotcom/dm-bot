@@ -1,5 +1,4 @@
 const { Client, GatewayIntentBits, PermissionsBitField } = require("discord.js");
-const config = require("./config");
 
 const client = new Client({
   intents: [
@@ -10,17 +9,20 @@ const client = new Client({
   ],
 });
 
+const prefix = "!";
+const token = process.env.TOKEN;
+
 client.once("ready", () => {
   console.log(`${client.user.tag} aktif!`);
-  console.log(`Prefix: ${config.prefix}`);
+  console.log(`Prefix: ${prefix}`);
 });
 
 client.on("messageCreate", async (message) => {
   if (!message.guild) return;
   if (message.author.bot) return;
-  if (!message.content.startsWith(config.prefix)) return;
+  if (!message.content.startsWith(prefix)) return;
 
-  const args = message.content.slice(config.prefix.length).trim().split(/ +/);
+  const args = message.content.slice(prefix.length).trim().split(/ +/);
   const command = args.shift().toLowerCase();
 
   if (command === "dm") {
@@ -47,11 +49,11 @@ client.on("messageCreate", async (message) => {
         failed++;
       }
 
-      await new Promise((r) => setTimeout(r, 1000)); // 1 saniye bekleme
+      await new Promise((r) => setTimeout(r, 1000));
     }
 
     message.channel.send(`✅ Gönderildi: ${sent}\n❌ Gönderilemedi: ${failed}`);
   }
 });
 
-client.login(config.token);
+client.login(token);
