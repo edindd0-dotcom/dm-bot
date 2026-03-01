@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits } = require("discord.js");
+const { Client, GatewayIntentBits, PermissionsBitField } = require("discord.js");
 const config = require("./config");
 
 const client = new Client({
@@ -10,7 +10,7 @@ const client = new Client({
   ],
 });
 
-client.once("clientReady", () => {
+client.once("ready", () => {
   console.log(`${client.user.tag} aktif!`);
   console.log(`Prefix: ${config.prefix}`);
 });
@@ -24,7 +24,7 @@ client.on("messageCreate", async (message) => {
   const command = args.shift().toLowerCase();
 
   if (command === "dm") {
-    if (!message.member.permissions.has("Administrator"))
+    if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator))
       return message.reply("❌ Sadece admin kullanabilir.");
 
     const text = args.join(" ");
@@ -43,10 +43,11 @@ client.on("messageCreate", async (message) => {
       try {
         await member.send(text);
         sent++;
-        await new Promise((r) => setTimeout(r, 1));
       } catch {
         failed++;
       }
+
+      await new Promise((r) => setTimeout(r, 1000)); // 1 saniye bekleme
     }
 
     message.channel.send(`✅ Gönderildi: ${sent}\n❌ Gönderilemedi: ${failed}`);
