@@ -1,16 +1,14 @@
-const { Client, GatewayIntentBits } = require("discord.js");
-require("dotenv").config();
+const { Client, GatewayIntentBits, PermissionsBitField } = require("discord.js");
+const config = require("./config");
 
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.MessageContent
   ],
 });
-
-const PREFIX = "!";
 
 client.once("ready", () => {
   console.log(`${client.user.tag} aktif!`);
@@ -19,13 +17,13 @@ client.once("ready", () => {
 client.on("messageCreate", async (message) => {
   if (!message.guild) return;
   if (message.author.bot) return;
-  if (!message.content.startsWith(PREFIX)) return;
+  if (!message.content.startsWith(config.prefix)) return;
 
-  const args = message.content.slice(PREFIX.length).trim().split(/ +/);
+  const args = message.content.slice(config.prefix.length).trim().split(/ +/);
   const command = args.shift().toLowerCase();
 
   if (command === "dm") {
-    if (!message.member.permissions.has("Administrator"))
+    if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator))
       return message.reply("❌ Sadece admin kullanabilir.");
 
     const text = args.join(" ");
@@ -44,23 +42,15 @@ client.on("messageCreate", async (message) => {
       try {
         await member.send(text);
         sent++;
-        await new Promise((r) => setTimeout(r, 500)); // rate limit koruma
-      } catch {
+      } catch (err) {
         failed++;
       }
+
+      await new Promise((r) => setTimeout(r, 1000));
     }
 
- message.channel.send({
-  embeds: [{
-    title: "📊 DM Raporu",
-    color: 0x00ff00,
-    fields: [
-      { name: "✅ Başarılı", value: `${sent}`, inline: true },
-      { name: "❌ Başarısız", value: `${failed}`, inline: true },
-      { name: "👥 Toplam Denenen", value: `${sent + failed}`, inline: true }
-    ],
-    timestamp: new Date()
-  }]
+    message.channel.send(`✅ Gönderildi: ${sent}\n❌ Gönderilemedi: ${failed}`);
+  }
 });
 
-client.login(process.env.TOKEN);
+client.login(config.token);
