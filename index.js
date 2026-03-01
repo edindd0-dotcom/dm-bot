@@ -1,32 +1,28 @@
-const { Client, GatewayIntentBits, PermissionsBitField } = require("discord.js");
+const { Client, GatewayIntentBits } = require("discord.js");
+const config = require("./config");
 
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.MessageContent
   ],
 });
 
-const prefix = "!";
-const token = process.env.TOKEN;
-
 client.once("ready", () => {
   console.log(`${client.user.tag} aktif!`);
-  console.log(`Prefix: ${prefix}`);
 });
 
 client.on("messageCreate", async (message) => {
   if (!message.guild) return;
   if (message.author.bot) return;
-  if (!message.content.startsWith(prefix)) return;
+  if (!message.content.startsWith(config.prefix)) return;
 
-  const args = message.content.slice(prefix.length).trim().split(/ +/);
+  const args = message.content.slice(config.prefix.length).trim().split(/ +/);
   const command = args.shift().toLowerCase();
 
   if (command === "dm") {
-    if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator))
+    if (!message.member.permissions.has("Administrator"))
       return message.reply("❌ Sadece admin kullanabilir.");
 
     const text = args.join(" ");
@@ -45,15 +41,14 @@ client.on("messageCreate", async (message) => {
       try {
         await member.send(text);
         sent++;
+        await new Promise((r) => setTimeout(r, 1000)); // 1 saniye yap
       } catch {
         failed++;
       }
-
-      await new Promise((r) => setTimeout(r, 1000));
     }
 
     message.channel.send(`✅ Gönderildi: ${sent}\n❌ Gönderilemedi: ${failed}`);
   }
 });
 
-client.login(token);
+client.login(config.token);
