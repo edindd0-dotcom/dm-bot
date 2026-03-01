@@ -47,7 +47,7 @@ client.on("messageCreate", async (message) => {
       }
     }
 
-    message.channel.send(`✅ Gönderildi: ${sent}\n❌ Gönderilemedi: ${failed}`);
+  message.channel.send(`✅ Gönderildi: ${sent}\n❌ Gönderilemedi: ${failed}`);
   }
 });
 
